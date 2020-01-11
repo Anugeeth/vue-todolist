@@ -1,3 +1,4 @@
+
 <template>
   <div id="app">
     <Header />
@@ -7,6 +8,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Header from './components/layout/Header'
 import Todos from './components/Todos'
 import AddTodo from './components/AddTodo'
@@ -19,31 +21,38 @@ export default {
     AddTodo
   },
   data: ()=>({
-    todos: [
-      {
-        id: 1,
-        title: 'todo one',
-        completed: false
-      },
-      {
-        id: 2,
-        title: 'todo two',
-        completed: true
-      },
-      {
-        id: 3,
-        title: 'todo three',
-        completed: false
-      }
-      ]
+    todos: [],
   }),
   methods: {
     deleteTodo(id){
-      this.todos = this.todos.filter(todo => todo.id !== id)
+      axios.delete('https://jsonplaceholder.typicode.com/todos/${id}')
+      // eslint-disable-next-line no-unused-vars
+      .then(res => {
+              this.todos = this.todos.filter(todo => todo.id !== id)
+      })
+      // eslint-disable-next-line no-console
+      .catch(err => console.log(err))
     },
     addTodo(newTodo){
-      this.todos = [...this.todos, newTodo]
+      const { title, completed} = newTodo;
+      axios.post('https://jsonplaceholder.typicode.com/todos',{ 
+        title,
+        completed
+      })
+      .then(res => {
+          this.todos = [...this.todos, res.data]
+      })
+      // eslint-disable-next-line no-console
+      .catch(err => console.log(err))
     }
+  },
+  created() {
+    axios.get('https://jsonplaceholder.typicode.com/todos?_limit=5')
+    .then(res => {
+      this.todos = res.data
+      })
+    // eslint-disable-next-line no-console
+    .catch(err => console.log(err))
   }
 }
 </script>
